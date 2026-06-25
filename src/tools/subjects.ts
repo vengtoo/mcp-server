@@ -23,7 +23,7 @@ export function registerSubjectTools(server: McpServer, client: VengtooClient) {
     'Create a subject — any principal that can be authorized (user, service, AI agent, device). Set external_id to your system\'s own user/service identifier so evaluation calls can reference it without a Vengtoo UUID lookup.',
     {
       name: z.string().describe('Display name, e.g. "Alice" or "payment-service"'),
-      type: z.string().describe('Subject type, e.g. "user", "service", "agent". Use consistent values across your tenant.'),
+      type: z.enum(['user', 'service', 'agent', 'device']).describe('Subject type. Must be one of: "user" (human), "service" (backend service), "agent" (AI agent), "device". Always confirm with the user before choosing.'),
       external_id: z.string().optional().describe('Your system\'s own identifier for this subject (recommended). Used in evaluation calls as subject.external_id.'),
     },
     async ({ name, type, external_id }) => {
