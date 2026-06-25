@@ -1,6 +1,6 @@
 {
   "name": "@vengtoo/mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Vengtoo MCP server — manage your authorization model and check access through any MCP-compatible AI tool",
   "type": "module",
   "main": "dist/index.js",
