@@ -81,6 +81,7 @@ export class VengtooClient {
   get<T>(path: string) { return this.request<T>('GET', path) }
   post<T>(path: string, body: unknown) { return this.request<T>('POST', path, body) }
   put<T>(path: string, body: unknown) { return this.request<T>('PUT', path, body) }
+  patch<T>(path: string, body: unknown) { return this.request<T>('PATCH', path, body) }
   delete(path: string) { return this.request<void>('DELETE', path) }
 }
 

@@ -20,7 +20,7 @@ export function registerResourceTools(server: McpServer, client: VengtooClient) 
     'Create a resource — a specific instance of a resource type (e.g. a specific document, a specific project). Set external_id to your system\'s own identifier (database UUID, slug) so you can reference it at evaluation time without storing Vengtoo\'s internal ID.',
     {
       name: z.string().describe('Human-readable resource name, e.g. "Engineering Wiki"'),
-      type: z.string().describe('Resource type UUID (from create_resource_type) or resource type name'),
+      type: z.string().describe('Resource type UUID — get this from list_resource_types or create_resource_type. Must be a UUID, not a name.'),
       external_id: z.string().optional().describe('Your system\'s own ID for this resource (recommended). Used in evaluation calls as resource.external_id.'),
       description: z.string().optional().describe('Optional description'),
     },
