@@ -10,7 +10,7 @@ interface EvalResponse {
 export function registerEvaluateTools(server: McpServer, client: VengtooClient) {
   server.tool(
     'check_authorization',
-    'Ask Vengtoo whether a subject can perform an action on a resource. Returns decision: true (allowed) or false (denied), plus the reason and which policy/access path was responsible.\n\nIdentify the subject and resource using either their Vengtoo UUID (id) or your system\'s own identifier (external_id). external_id is preferred in production — it avoids the need to store Vengtoo UUIDs.\n\nFor type-level checks (does this user have ANY access to this type of resource?): set resource_type and omit resource_id and resource_external_id.\nFor instance-level checks (does this user have access to THIS specific resource?): set resource_id or resource_external_id.',
+    'Ask Vengtoo whether a subject can perform an action on a resource. Returns decision: true (allowed) or false (denied), plus the reason and which policy/access path was responsible.\n\nIdentify the subject and resource using either their Vengtoo UUID (id) or your system\'s own identifier (external_id). external_id is preferred in production — it avoids the need to store Vengtoo UUIDs.\n\nFor type-level checks (does this subject have access to ANY resource of this type?): provide only resource_type — omit both resource_id and resource_external_id. The tool sends id="*" automatically.\nFor instance-level checks (does this subject have access to THIS specific resource?): set resource_id or resource_external_id.',
     {
       subject_external_id: z.string().optional().describe('Your system\'s own subject ID (recommended). Mutually exclusive with subject_id.'),
       subject_id: z.string().optional().describe('Vengtoo subject UUID. Use subject_external_id instead when possible.'),
@@ -28,6 +28,7 @@ export function registerEvaluateTools(server: McpServer, client: VengtooClient) 
       const resource: Record<string, string> = { type: resource_type }
       if (resource_external_id) resource.external_id = resource_external_id
       else if (resource_id) resource.id = resource_id
+      else resource.id = '*'  // type-level check: matches any resource of this type
 
       const data = await client.post<EvalResponse>('/access/v1/evaluation', {
         subject,

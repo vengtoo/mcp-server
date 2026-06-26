@@ -41,6 +41,31 @@ export function registerResourceTools(server: McpServer, client: VengtooClient) 
   )
 
   server.tool(
+    'update_resource',
+    'Update a resource\'s name, description, external_id, or attributes. Use this to set or replace resource attributes that ABAC conditions will evaluate (e.g. status, classification, department). Pass only the fields you want to change.',
+    {
+      id: z.string().describe('Resource UUID'),
+      name: z.string().optional().describe('New display name'),
+      description: z.string().optional().describe('New description'),
+      external_id: z.string().optional().describe('New external identifier'),
+      attributes: z.record(z.unknown()).optional().describe(
+        'Attribute key-value pairs to set on this resource. These are read by resource_attrs ABAC conditions. ' +
+        'Example: {"status": "published", "classification": "internal", "department": "engineering"}. ' +
+        'Replaces the entire attributes object — include all existing attributes you want to keep.'
+      ),
+    },
+    async ({ id, name, description, external_id, attributes }) => {
+      const body: Record<string, unknown> = {}
+      if (name !== undefined) body.name = name
+      if (description !== undefined) body.description = description
+      if (external_id !== undefined) body.external_id = external_id
+      if (attributes !== undefined) body.attributes = attributes
+      const data = await client.put<Resource>(`/v1/resources/${id}`, body)
+      return { content: [{ type: 'text' as const, text: `Resource ${id} updated.\n\n${JSON.stringify(data, null, 2)}` }] }
+    }
+  )
+
+  server.tool(
     'delete_resource',
     'Delete a resource by ID.',
     { id: z.string().describe('Resource UUID') },

@@ -65,7 +65,7 @@ export function registerPolicyTools(server: McpServer, client: VengtooClient) {
 
   server.tool(
     'update_policy',
-    'Update an existing policy — change its name, description, effect, priority, or action/resource assignments. Use this instead of delete + recreate when you need to fix a policy.',
+    'Update an existing policy — change its name, description, effect, priority, action/resource assignments, or ABAC conditions. Use this instead of delete + recreate when you need to fix a policy.',
     {
       id: z.string().describe('Policy UUID'),
       name: z.string().optional().describe('New policy name'),
@@ -75,13 +75,20 @@ export function registerPolicyTools(server: McpServer, client: VengtooClient) {
       resource_id: z.string().optional().describe('Resource UUID — switch to instance-level targeting'),
       priority: z.number().min(0).max(100).optional().describe('New priority 0–100'),
       description: z.string().optional().describe('New description'),
+      conditions: z.record(z.unknown()).optional().describe(
+        'Flat ABAC conditions object. Each key is an active guardrail or attribute check; all present keys must pass (AND). ' +
+        'Keys: subject_attrs ([{attr, op, value}]), resource_attrs ([{attr, op, value}]), context_attrs ([{key, op, value}]), ' +
+        'time_window ({start, end, days, tz}), ip_allowlist ({cidrs: [...]}), geo_restriction ({mode, countries}), ' +
+        'mfa_required ({claim_path}). Omit a key to leave that check inactive. Pass {} to clear all conditions.'
+      ),
     },
-    async ({ id, name, effect, actions, resource_type_id, resource_id, priority, description }) => {
+    async ({ id, name, effect, actions, resource_type_id, resource_id, priority, description, conditions }) => {
       const body: Record<string, unknown> = {}
       if (name !== undefined) body.name = name
       if (effect !== undefined) body.effect = effect
       if (priority !== undefined) body.priority = priority
       if (description !== undefined) body.description = description
+      if (conditions !== undefined) body.conditions = conditions
       if (resource_type_id && actions) {
         body.resource_types = [{ resource_type_id, actions }]
       } else if (resource_id && actions) {
@@ -89,7 +96,7 @@ export function registerPolicyTools(server: McpServer, client: VengtooClient) {
       } else if (actions) {
         body.actions = actions
       }
-      const data = await client.patch<Policy>(`/v1/policies/${id}`, body)
+      const data = await client.put<Policy>(`/v1/policies/${id}`, body)
       return { content: [{ type: 'text' as const, text: `Policy ${id} updated.\n\n${JSON.stringify(data, null, 2)}` }] }
     }
   )
