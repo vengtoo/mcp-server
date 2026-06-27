@@ -60,7 +60,7 @@ export function registerSubjectTools(server: McpServer, client: VengtooClient) {
     'Do this before writing the ABAC condition so the dashboard autocomplete works. Then set actual values on subjects with update_subject.',
     {
       name: z.string().describe('Attribute key name used in ABAC conditions, e.g. "department" or "clearance". Must match exactly what the policy\'s subject_attrs[].attr references.'),
-      type: z.enum(['string', 'number', 'boolean', 'enum', 'object']).describe('Value type. Use "enum" with enum_options for a fixed set of choices.'),
+      type: z.enum(['string', 'int', 'bool', 'enum', 'object', 'json']).describe('Value type. Use "bool" (not "boolean"), "int" (not "number"). Use "enum" with enum_options for a fixed set of choices. "json" accepts any JSON value.'),
       description: z.string().optional().describe('Human-readable description shown in the dashboard, e.g. "Employee department for policy scoping"'),
       required: z.boolean().optional().describe('Mark as required in the dashboard form (advisory only — backend does not enforce). Default false.'),
       enum_options: z.array(z.string()).optional().describe('Allowed values when type is "enum", e.g. ["engineering", "finance", "hr"]. Ignored for other types.'),
